@@ -1,10 +1,13 @@
 import tweepy
-import pandas
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import requests
-import io
+from io import StringIO
 import os
+from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
+import matplotlib.dates as mdates
+from datetime import date
 from fastapi import FastAPI
 from deta import App
 
@@ -55,6 +58,63 @@ def plotting(data):
 
     plt.savefig("/tmp/chart.png")
 
+def plotting2(data):
+    name = data['name'][0]
+    description = data['description'][0]
+
+    data_toplot = data[['price']]
+
+    # plt.rcParams['ytick.alignment'] = 'bottom'
+
+    # fig, ax = plt.subplots(figsize=(16, 11), dpi=150)
+    fig, ax = plt.subplots(figsize=(12, 6))
+    data_toplot.plot(ax=ax,legend=False, color="#18a1cd",linewidth=4,solid_capstyle="butt") 
+    ax.set_title(f"{name} {description}", loc='left', pad=45, fontsize=20)
+    ax.yaxis.set_label_position("right")
+    ax.set_ylabel("Precio", fontsize=14)
+    ax.set(xlabel=None)
+    ax.spines[["top","left", "right"]].set_visible(False)
+    ax.spines[["top", "bottom", "left", "right"]].set_linewidth(1)
+    ax.grid(visible=True, axis='y', linewidth=1, color = '#A5A5A5')
+    ax.set_axisbelow(True)
+    ax.tick_params(width=1,labelsize=14, labelleft=False, labelright=True)
+    ax.tick_params(axis='x', which='major', pad=4, length=10)
+    ax.tick_params(axis='x', which='minor', pad=4, length=5)
+    ax.tick_params(axis='y', which='major', pad=-40, length=0)
+    ax.tick_params(axis='y', which='minor', pad=12, length=0)
+
+    ax.xaxis.set_major_locator(mdates.DayLocator(1))
+    ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(ax.xaxis.get_major_locator()))
+    # ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%b'))
+    ax.xaxis.set_minor_locator(mdates.MonthLocator(bymonthday=(15)))
+    # ax.xaxis.set_minor_formatter(mdates.DateFormatter('%d'))
+
+    for label in ax.get_yticklabels():
+        label.set(verticalalignment='bottom')
+
+    for label in ax.get_xticklabels(which='major'):
+        label.set(rotation=0, horizontalalignment='center')
+
+    ax.set_xlim(data.index[0])
+
+    plt.subplots_adjust(left=0.08, right= 0.95, bottom= 0.125)
+
+    today = date.today().strftime("%d-%m-%Y")
+    ax.text(x=.08, y=0.92, 
+            s=f"Precio a {str(today)}", 
+            transform=fig.transFigure, 
+            ha='left', 
+            fontsize=14, 
+            alpha=.8)
+
+    ax.text(x=.08, y=0, 
+            s="""@Merca_precio""", 
+            transform=fig.transFigure, 
+            ha='left', 
+            fontsize=14, 
+            alpha=.7)
+    
+    plt.savefig("/tmp/chart.png", facecolor='white', bbox_inches='tight', pad_inches=0.2)
 
 def generate_chart_url(url):
     tb_by_url = os.getenv('tb_by_url')
@@ -74,6 +134,29 @@ def generate_chart_url(url):
         return False
     else:
         plotting(data)
+        return True
+
+def generate_chart_url2(url):
+    tb_by_url = os.getenv('tb_by_url')
+
+    params = {
+        'token': tb_by_url,
+        'param': url
+    }
+
+    # print("In generate_chart_url")
+
+    url = f'https://api.tinybird.co/v0/pipes/products_by_url.csv'
+    
+    response = requests.get(url, params=params)
+    buffer = StringIO(response.text)
+    data = pd.read_csv(buffer, index_col=0, parse_dates=True)
+
+    if data.empty:
+        # print('DataFrame is empty!')
+        return False
+    else:
+        plotting2(data)
         return True
 
 def generate_chart_basename(basename):
@@ -96,13 +179,35 @@ def generate_chart_basename(basename):
         plotting(data)
         return True
 
+def generate_chart_basename2(basename):
+    tb_by_basename = os.getenv('tb_by_basename')
+
+    params = {
+        'token': tb_by_basename,
+        'param': basename
+    }
+
+    # print("In generate_chart_basename")
+    url = f'https://api.tinybird.co/v0/pipes/products_by_basename.csv'
+
+    response = requests.get(url, params=params)
+    buffer = StringIO(response.text)
+    data = pd.read_csv(buffer, index_col=0, parse_dates=True)
+
+    if data.empty:
+        # print('DataFrame is empty!')
+        return False
+    else:
+        plotting(data)
+        return True
+
 def proc_mention(client, api, tweet):
     if 'urls' in tweet['entities']:
         url = tweet.entities["urls"][0]['expanded_url']
         if "https://tienda.mercadona.es/product/" in url:
-            if 'aceite-girasol-refinado-02o-hacendado' in url or not generate_chart_url(url):
+            if 'aceite-girasol-refinado-02o-hacendado' in url or not generate_chart_url2(url):
                 basename = url.split('/')[-1]
-                if not generate_chart_basename(basename):
+                if not generate_chart_basename2(basename):
                     # print("Not in DB")
                     message = 'No he encontrado ese producto'
                     print("sending tweet")
