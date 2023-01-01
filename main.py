@@ -80,7 +80,7 @@ def plotting2(data):
     ax.tick_params(width=1,labelsize=14, labelleft=False, labelright=True)
     ax.tick_params(axis='x', which='major', pad=4, length=10)
     ax.tick_params(axis='x', which='minor', pad=4, length=5)
-    ax.tick_params(axis='y', which='major', pad=-40, length=0)
+    ax.tick_params(axis='y', which='major', pad=-22, length=0)
     ax.tick_params(axis='y', which='minor', pad=12, length=0)
 
     ax.xaxis.set_major_locator(mdates.DayLocator(1))
