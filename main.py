@@ -69,6 +69,7 @@ def plotting2(data):
     # fig, ax = plt.subplots(figsize=(16, 11), dpi=150)
     fig, ax = plt.subplots(figsize=(12, 6))
     data_toplot.plot(ax=ax,legend=False, color="#18a1cd",linewidth=4,solid_capstyle="butt") 
+    ax.autoscale(tight=False)
     ax.set_title(f"{name} {description}", loc='left', pad=45, fontsize=20)
     ax.yaxis.set_label_position("right")
     ax.set_ylabel("Precio", fontsize=14)
@@ -80,9 +81,9 @@ def plotting2(data):
     ax.tick_params(width=1,labelsize=14, labelleft=False, labelright=True)
     ax.tick_params(axis='x', which='major', pad=4, length=10)
     ax.tick_params(axis='x', which='minor', pad=4, length=5)
-    ax.tick_params(axis='y', which='major', pad=-22, length=0)
-    ax.tick_params(axis='y', which='minor', pad=12, length=0)
-
+    ax.tick_params(axis='y', which='major', pad=-15, length=0)
+    ax.tick_params(axis='y', which='minor', length=0)
+    
     ax.xaxis.set_major_locator(mdates.DayLocator(1))
     ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(ax.xaxis.get_major_locator()))
     # ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%b'))
@@ -90,7 +91,7 @@ def plotting2(data):
     # ax.xaxis.set_minor_formatter(mdates.DateFormatter('%d'))
 
     for label in ax.get_yticklabels():
-        label.set(verticalalignment='bottom')
+        label.set(horizontalalignment='center', verticalalignment='bottom')
 
     for label in ax.get_xticklabels(which='major'):
         label.set(rotation=0, horizontalalignment='center')
