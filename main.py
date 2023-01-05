@@ -62,11 +62,13 @@ def plotting2(data):
     name = data['name'][0]
     description = data['description'][0]
 
-    data_toplot = data['price']
+    prices = data['price']
+
+    data_toplot = prices.asfreq('D')
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
-    ax.set_title(f"{name} {description}", loc='left', fontsize=18)
+    ax.set_title(f"{name} {description}", loc='left',pad=40, fontsize=16) ##########
     ax.yaxis.set_label_position("right")
     ax.set_ylabel("Precio", fontsize=12, labelpad=10)
 
@@ -74,18 +76,27 @@ def plotting2(data):
     ax.spines[["bottom"]].set_linewidth(1)
 
     ax.tick_params(width=1,labelsize=12, labelleft=False, labelright=True)
+
     ax.tick_params(axis='x', which='major', pad=4, length=8)
     ax.tick_params(axis='x', which='minor', pad=4, length=5, labelsize=12)
     ax.tick_params(axis='y', which='major', pad=-15, length=0)
     ax.tick_params(axis='y', which='minor', length=0)
 
-    ax.xaxis.set_major_locator(mdates.DayLocator(1))
-    ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(ax.xaxis.get_major_locator()))
-    # ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%b'))
-    ax.xaxis.set_minor_locator(mdates.MonthLocator(bymonthday=(15)))
-    # ax.xaxis.set_minor_formatter(mdates.DateFormatter('%d'))
+    ################
+    # TEST
+    # data_toplot = data_toplot[-91:]
+    data_toplot.plot(ax=ax,legend=False, color="#18a1cd",linewidth=3.5,solid_capstyle="butt")
 
-    data_toplot.plot(ax=ax,legend=False, color="#18a1cd",linewidth=3,solid_capstyle="butt")
+    # hasta 82 dias aparecen como dias en el eje
+    rows=len(data_toplot.index)
+    if(rows > 82) :
+      loc_major = ax.xaxis.set_major_locator(mdates.MonthLocator())
+      ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(loc_major))
+
+      days = mdates.MonthLocator(bymonthday=15)
+      ax.xaxis.set_minor_locator(days)
+
+    # ax.xaxis.set_minor_formatter(mdates.DateFormatter('%d'))
 
     for label in ax.get_yticklabels():
         label.set(horizontalalignment='center', verticalalignment='bottom')
@@ -93,27 +104,22 @@ def plotting2(data):
     for label in ax.get_xticklabels(which='major'):
         label.set(rotation=0, horizontalalignment='center')
 
-    ax.set(xlabel=None)
-    ax.grid(visible=True, axis='y', linewidth=1, color = '#A5A5A5')
-    # ax.set_xlim(data.index[0])
-
     ax.autoscale(tight=False)
-    plt.subplots_adjust(left=0.08, right= 0.95, bottom= 0.125)
+
+    ax.set(xlabel=None)
+
+    ax.grid(visible=True, axis='y', linewidth=1, color = '#A5A5A5')
+
+    plt.subplots_adjust(left=0.08, right= 0.95, bottom= 0.15)
 
     today = date.today().strftime("%d-%m-%Y")
-    ax.text(x=.08, y=0.84, 
-            s=f"Precio a {str(today)}", 
+
+    ax.text(x=.08, y=0.92, 
+            s=f"Precio a {str(today)}   @Merca_precio", 
             transform=fig.transFigure, 
             ha='left', 
             fontsize=13, 
-            alpha=.8)
-
-    ax.text(x=.07, y=0, 
-            s="@Merca_precio", 
-            transform=fig.transFigure, 
-            ha='left', 
-            fontsize=14, 
-            alpha=.7)
+            alpha=.8)    
     
     plt.savefig("/tmp/chart.png", facecolor='white', bbox_inches='tight', pad_inches=0.2)
 
