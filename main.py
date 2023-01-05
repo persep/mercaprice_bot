@@ -74,7 +74,7 @@ def plotting2(data):
     ax.spines[["bottom"]].set_linewidth(1)
 
     ax.tick_params(width=1,labelsize=12, labelleft=False, labelright=True)
-    ax.tick_params(axis='x', which='major', pad=4, length=10)
+    ax.tick_params(axis='x', which='major', pad=4, length=8)
     ax.tick_params(axis='x', which='minor', pad=4, length=5, labelsize=12)
     ax.tick_params(axis='y', which='major', pad=-15, length=0)
     ax.tick_params(axis='y', which='minor', length=0)
