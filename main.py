@@ -235,9 +235,9 @@ def proc_mention(client, api, tweet):
             client.create_tweet(in_reply_to_tweet_id=tweet.id, text=message)
     else:
         # print("no urls")
-        message = 'No has mandado una url'
-        print("sending tweet")
-        client.create_tweet(in_reply_to_tweet_id=tweet.id, text=message)
+        message = 'Hola 👋, en mi tweet fijado tienes explicado como funciona.'
+        # print("sending tweet")
+        # client.create_tweet(in_reply_to_tweet_id=tweet.id, text=message)
 
 def proc_mentions(client, api):
     credentials = api.verify_credentials()
