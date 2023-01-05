@@ -62,33 +62,30 @@ def plotting2(data):
     name = data['name'][0]
     description = data['description'][0]
 
-    data_toplot = data[['price']]
+    data_toplot = data['price']
 
-    # plt.rcParams['ytick.alignment'] = 'bottom'
-
-    # fig, ax = plt.subplots(figsize=(16, 11), dpi=150)
     fig, ax = plt.subplots(figsize=(12, 6))
-    data_toplot.plot(ax=ax,legend=False, color="#18a1cd",linewidth=4,solid_capstyle="butt") 
-    ax.autoscale(tight=False)
-    ax.set_title(f"{name} {description}", loc='left', pad=45, fontsize=20)
+
+    ax.set_title(f"{name} {description}", loc='left', fontsize=18)
     ax.yaxis.set_label_position("right")
-    ax.set_ylabel("Precio", fontsize=14)
-    ax.set(xlabel=None)
+    ax.set_ylabel("Precio", fontsize=12, labelpad=10)
+
     ax.spines[["top","left", "right"]].set_visible(False)
-    ax.spines[["top", "bottom", "left", "right"]].set_linewidth(1)
-    ax.grid(visible=True, axis='y', linewidth=1, color = '#A5A5A5')
-    ax.set_axisbelow(True)
-    ax.tick_params(width=1,labelsize=14, labelleft=False, labelright=True)
+    ax.spines[["bottom"]].set_linewidth(1)
+
+    ax.tick_params(width=1,labelsize=12, labelleft=False, labelright=True)
     ax.tick_params(axis='x', which='major', pad=4, length=10)
-    ax.tick_params(axis='x', which='minor', pad=4, length=5)
+    ax.tick_params(axis='x', which='minor', pad=4, length=5, labelsize=12)
     ax.tick_params(axis='y', which='major', pad=-15, length=0)
     ax.tick_params(axis='y', which='minor', length=0)
-    
+
     ax.xaxis.set_major_locator(mdates.DayLocator(1))
     ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(ax.xaxis.get_major_locator()))
     # ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%b'))
     ax.xaxis.set_minor_locator(mdates.MonthLocator(bymonthday=(15)))
     # ax.xaxis.set_minor_formatter(mdates.DateFormatter('%d'))
+
+    data_toplot.plot(ax=ax,legend=False, color="#18a1cd",linewidth=3,solid_capstyle="butt")
 
     for label in ax.get_yticklabels():
         label.set(horizontalalignment='center', verticalalignment='bottom')
@@ -96,20 +93,23 @@ def plotting2(data):
     for label in ax.get_xticklabels(which='major'):
         label.set(rotation=0, horizontalalignment='center')
 
-    ax.set_xlim(data.index[0])
+    ax.set(xlabel=None)
+    ax.grid(visible=True, axis='y', linewidth=1, color = '#A5A5A5')
+    # ax.set_xlim(data.index[0])
 
+    ax.autoscale(tight=False)
     plt.subplots_adjust(left=0.08, right= 0.95, bottom= 0.125)
 
     today = date.today().strftime("%d-%m-%Y")
-    ax.text(x=.08, y=0.92, 
+    ax.text(x=.08, y=0.84, 
             s=f"Precio a {str(today)}", 
             transform=fig.transFigure, 
             ha='left', 
-            fontsize=14, 
+            fontsize=13, 
             alpha=.8)
 
-    ax.text(x=.08, y=0, 
-            s="""@Merca_precio""", 
+    ax.text(x=.07, y=0, 
+            s="@Merca_precio", 
             transform=fig.transFigure, 
             ha='left', 
             fontsize=14, 
