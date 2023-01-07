@@ -7,7 +7,6 @@ from io import StringIO
 import os
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 import matplotlib.dates as mdates
-from datetime import date
 from fastapi import FastAPI
 from deta import App
 
