@@ -112,10 +112,10 @@ def plotting2(data):
 
     plt.subplots_adjust(left=0.08, right= 0.95, bottom= 0.15)
 
-    today = date.today().strftime("%d-%m-%Y")
-
+    last_day = data_toplot.index[-1].strftime("%d-%m-%Y")
+    
     ax.text(x=.08, y=0.92, 
-            s=f"Precio a {str(today)}   @Merca_precio", 
+            s=f"Precio a {str(last_day)}   @Merca_precio", 
             transform=fig.transFigure, 
             ha='left', 
             fontsize=13, 
