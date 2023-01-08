@@ -36,12 +36,7 @@ def start_client():
 
 def plotting2(data):
     name = data['name'][0]
-    
-    if pd.isna(data['description'][0]):
-        description = ''
-    else:
-        description = data['description'][0]
-
+    description = data['description'][0]
     prices = data['price']
 
     data_toplot = prices.asfreq('D')
@@ -118,6 +113,7 @@ def generate_chart_url2(url):
     response = requests.get(url, params=params)
     buffer = StringIO(response.text)
     data = pd.read_csv(buffer, index_col=0, parse_dates=True, na_values=['\\N'])
+    data = data.fillna('')
 
     if data.empty:
         # print('DataFrame is empty!')
@@ -141,6 +137,7 @@ def generate_chart_basename2(basename):
     response = requests.get(url, params=params)
     buffer = StringIO(response.text)
     data = pd.read_csv(buffer, index_col=0, parse_dates=True, na_values=['\\N'])
+    data = data.fillna('')
 
     if data.empty:
         # print('DataFrame is empty!')
