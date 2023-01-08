@@ -36,7 +36,11 @@ def start_client():
 
 def plotting2(data):
     name = data['name'][0]
-    description = data['description'][0]
+    
+    if pd.isna(data['description'][0]):
+        description = ''
+    else:
+        description = data['description'][0]
 
     prices = data['price']
 
