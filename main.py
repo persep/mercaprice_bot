@@ -35,6 +35,8 @@ def start_client():
     return client, api
 
 def plotting2(data):
+    data = data.fillna('')    
+
     name = data['name'][0]
     description = data['description'][0]
     prices = data['price']
@@ -113,7 +115,6 @@ def generate_chart_url2(url):
     response = requests.get(url, params=params)
     buffer = StringIO(response.text)
     data = pd.read_csv(buffer, index_col=0, parse_dates=True, na_values=['\\N'])
-    data = data.fillna('')
 
     if data.empty:
         # print('DataFrame is empty!')
@@ -137,7 +138,6 @@ def generate_chart_basename2(basename):
     response = requests.get(url, params=params)
     buffer = StringIO(response.text)
     data = pd.read_csv(buffer, index_col=0, parse_dates=True, na_values=['\\N'])
-    data = data.fillna('')
 
     if data.empty:
         # print('DataFrame is empty!')
