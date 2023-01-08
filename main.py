@@ -34,29 +34,6 @@ def start_client():
 
     return client, api
 
-def plotting(data):
-    data['date'] = pandas.to_datetime(data['date'])
-    
-    date = data["date"]
-    price = data["price"]
-
-    fig, ax = plt.subplots(figsize=(12, 6), layout='constrained')
-    ax.plot(date, price, linewidth=2.5, alpha=0.75)
-    plt.grid(True)
-    title_text = f"{data['name'][0]} {data['description'][0]}"
-    ax.set_title(title_text, fontsize=16)
-    ax.set_ylabel('Precio (€)')
-    ax.xaxis.set_major_locator(mdates.MonthLocator())
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b %y"))
-    
-    ax.xaxis.set_minor_locator(mdates.DayLocator(15))
-    #ax.xaxis.set_minor_formatter(mdates.DateFormatter("%d"))
-    
-    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
-    ax.margins(x=0)
-
-    plt.savefig("/tmp/chart.png")
-
 def plotting2(data):
     name = data['name'][0]
     description = data['description'][0]
@@ -122,26 +99,6 @@ def plotting2(data):
     
     plt.savefig("/tmp/chart.png", facecolor='white', bbox_inches='tight', pad_inches=0.2)
 
-def generate_chart_url(url):
-    tb_by_url = os.getenv('tb_by_url')
-
-    params = {
-        'token': tb_by_url,
-        'param': url
-    }
-
-    # print("In generate_chart_url")
-
-    url = f'https://api.tinybird.co/v0/pipes/products_by_url.csv'
-    response = requests.get(url, params=params)
-    data = pandas.read_csv(io.StringIO(response.text))
-    if data.empty:
-        # print('DataFrame is empty!')
-        return False
-    else:
-        plotting(data)
-        return True
-
 def generate_chart_url2(url):
     tb_by_url = os.getenv('tb_by_url')
 
@@ -156,7 +113,7 @@ def generate_chart_url2(url):
     
     response = requests.get(url, params=params)
     buffer = StringIO(response.text)
-    data = pd.read_csv(buffer, index_col=0, parse_dates=True)
+    data = pd.read_csv(buffer, index_col=0, parse_dates=True, na_values=['\\N'])
 
     if data.empty:
         # print('DataFrame is empty!')
@@ -165,25 +122,6 @@ def generate_chart_url2(url):
         plotting2(data)
         return True
 
-def generate_chart_basename(basename):
-    tb_by_basename = os.getenv('tb_by_basename')
-
-    params = {
-        'token': tb_by_basename,
-        'param': basename
-    }
-
-    # print("In generate_chart_basename")
-    url = f'https://api.tinybird.co/v0/pipes/products_by_basename.csv'
-    response = requests.get(url, params=params)
-
-    data = pandas.read_csv(io.StringIO(response.text))
-    if data.empty:
-        # print('DataFrame is empty!')
-        return False
-    else:
-        plotting(data)
-        return True
 
 def generate_chart_basename2(basename):
     tb_by_basename = os.getenv('tb_by_basename')
@@ -198,13 +136,13 @@ def generate_chart_basename2(basename):
 
     response = requests.get(url, params=params)
     buffer = StringIO(response.text)
-    data = pd.read_csv(buffer, index_col=0, parse_dates=True)
+    data = pd.read_csv(buffer, index_col=0, parse_dates=True, na_values=['\\N'])
 
     if data.empty:
         # print('DataFrame is empty!')
         return False
     else:
-        plotting(data)
+        plotting2(data)
         return True
 
 def proc_mention(client, api, tweet):
