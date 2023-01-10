@@ -9,6 +9,7 @@ from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 import matplotlib.dates as mdates
 from fastapi import FastAPI
 from deta import App
+import matplotlib.ticker as mticker
 
 app = App(FastAPI())
 
@@ -33,6 +34,12 @@ def start_client():
     )
 
     return client, api
+
+def mydates(date):
+    months=['', 'ene', 'feb', 'mar', 'abr', 'may', 'jun',
+        'jul', 'ago', 'sept', 'oct', 'nov', 'dic']
+    print(date.month, babel.dates.format_datetime(date,'MMM',locale='es'))
+    return months[date.month] if date.month != 1 else date.year
 
 def plotting2(data):
     data = data.fillna('')    
@@ -72,6 +79,11 @@ def plotting2(data):
 
       days = mdates.MonthLocator(bymonthday=15)
       ax.xaxis.set_minor_locator(days)
+
+      ticks_loc = ax.get_xticks().tolist()
+      ax.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
+      ax.set_xticklabels([mydates(mdates.num2date(x))
+        for x in ticks_loc])
 
     # ax.xaxis.set_minor_formatter(mdates.DateFormatter('%d'))
 
