@@ -38,7 +38,7 @@ def start_client():
 def mydates(date):
     months=['', 'ene', 'feb', 'mar', 'abr', 'may', 'jun',
         'jul', 'ago', 'sept', 'oct', 'nov', 'dic']
-    print(date.month, babel.dates.format_datetime(date,'MMM',locale='es'))
+
     return months[date.month] if date.month != 1 else date.year
 
 def plotting2(data):
