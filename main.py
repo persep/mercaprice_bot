@@ -43,7 +43,7 @@ def mydates(date):
 
 def mydates_days(date):
     if date.month == 1:
-        return f'date.day\nmonths[date.month]\ndate.year'
+        return f'{date.day:02}\n{months[date.month]}\n{date.year}'
     else:
         return date.day
 
