@@ -38,88 +38,88 @@ def start_client():
 
     return client, api
 
-def mydates(date):
-    return months[date.month] if date.month != 1 else date.year
-
-def mydates_days(date):
-    if date.month == 1:
-        return f'{date.day:02}\n{months[date.month]}\n{date.year}'
-    else:
+def mydate(date, fmt):
+    if fmt == 'MMM':
+        return months[date.month]
+    if fmt == 'MMM-yyyy':
+        return f'{months[date.month]}-{date.year}'
+    if fmt == 'yyyy':
+        return date.year
+    if fmt == 'd':
         return date.day
+    if fmt == 'd-MMM':
+        return f'{date.day}-{months[date.month]}'
+    if fmt == 'MMM\nyyyy':
+        return f'{months[date.month]}\n{date.year}'
+
+def format_date(x, _):
+        date = mdates.num2date(x)
+        if date.day == 1 and date.month == 1:
+            return mydate(date,'MMM\nyyyy')
+        if date.day == 1:
+            return mydate(date,'MMM')
+        return mydate(date,'d')
 
 def plotting2(data):
-    data = data.fillna('')    
+    data = data.fillna('')
 
     name = data['name'][0]
     description = data['description'][0]
-    prices = data['price']
+    prices = data['price'].asfreq('D')
 
-    data_toplot = prices.asfreq('D')
+    # prices = prices[-14:]
+    plt.rcParams['lines.linewidth'] = 2.5
+    plt.rcParams['font.size'] = 12
+    plt.rcParams['axes.titlesize'] = 18
+    plt.rcParams["axes.labelpad"] = 12
+    plt.rcParams["ytick.major.pad"] = -30
+    plt.rcParams["ytick.alignment"] = 'bottom'
+    plt.rcParams["xtick.major.size"] = 6
+    plt.rcParams["xtick.minor.size"] = 6
+    plt.rcParams["axes.titlepad"] = 30
+    plt.rcParams["ytick.right"] = False
+    plt.rcParams["ytick.left"] = False
+    plt.rcParams["ytick.labelright"] = True
+    plt.rcParams["ytick.labelleft"] = False
+    plt.rcParams['axes.spines.left'] = False
+    plt.rcParams['axes.spines.right'] = False
+    plt.rcParams['axes.spines.top'] = False
+    plt.rcParams['axes.spines.bottom'] = True
+    plt.rcParams['axes.grid'] = True
+    plt.rcParams['axes.grid.axis'] = 'y'
 
+    px = 1/plt.rcParams['figure.dpi'] 
+    # fig, ax = plt.subplots(figsize=(1200*px, 600*px))
     fig, ax = plt.subplots(figsize=(12, 6))
 
-    ax.set_title(f"{name} {description}", loc='left',pad=40, fontsize=16) ##########
-    ax.yaxis.set_label_position("right")
-    ax.set_ylabel("Precio", fontsize=12, labelpad=10)
+    ax.plot(prices, color= '#18a1cd')
 
-    ax.spines[["top","left", "right"]].set_visible(False)
-    ax.spines[["bottom"]].set_linewidth(1)
+    ax.set_title(f"{name} {description}", loc='left')
 
-    ax.tick_params(width=1,labelsize=12, labelleft=False, labelright=True)
+    ax.grid(axis='y')
 
-    ax.tick_params(axis='x', which='major', pad=4, length=8)
-    ax.tick_params(axis='x', which='minor', pad=4, length=5, labelsize=12)
-    ax.tick_params(axis='y', which='major', pad=-15, length=0)
-    ax.tick_params(axis='y', which='minor', length=0)
+    locator = mdates.AutoDateLocator()
+    ax.xaxis.set_major_formatter(format_date)
+    ax.xaxis.set_major_locator(locator)
 
-    ################
-    # TEST
-    # data_toplot = data_toplot[-91:]
-    data_toplot.plot(ax=ax,legend=False, color="#18a1cd",linewidth=3.5,solid_capstyle="butt")
+    ax.xaxis.set_minor_locator(mdates.MonthLocator())
 
-    # hasta 82 dias aparecen como dias en el eje
-    rows=len(data_toplot.index)
-    if(rows > 82):
-        loc_major = ax.xaxis.set_major_locator(mdates.MonthLocator())
-        ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(loc_major))
+    last_day = data.index[-1].strftime("%d-%m-%Y")
 
-        days = mdates.MonthLocator(bymonthday=15)
-        ax.xaxis.set_minor_locator(days)
-
-        ticks_loc = ax.get_xticks().tolist()
-        ax.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
-        ax.set_xticklabels([mydates(mdates.num2date(x))
-            for x in ticks_loc])
-    else:
-        ticks_loc = ax.get_xticks().tolist()
-        ax.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
-        ax.set_xticklabels([mydates_days(mdates.num2date(x))
-            for x in ticks_loc])
-
-    # ax.xaxis.set_minor_formatter(mdates.DateFormatter('%d'))
-
-    for label in ax.get_yticklabels():
-        label.set(horizontalalignment='center', verticalalignment='bottom')
-
-    for label in ax.get_xticklabels(which='major'):
-        label.set(rotation=0, horizontalalignment='center')
-
-    ax.autoscale(tight=False)
-
-    ax.set(xlabel=None)
-
-    ax.grid(visible=True, axis='y', linewidth=1, color = '#A5A5A5')
-
-    plt.subplots_adjust(left=0.08, right= 0.95, bottom= 0.15)
-
-    last_day = data_toplot.index[-1].strftime("%d-%m-%Y")
-    
-    ax.text(x=.08, y=0.92, 
-            s=f"Precio a {str(last_day)}   @Merca_precio", 
+    ax.text(x=0.07, y=0.88, 
+            s=f"Precio a {str(last_day)}", 
             transform=fig.transFigure, 
             ha='left', 
-            fontsize=13, 
-            alpha=.8)    
+            fontsize=14)
+     
+    ax.text(x=0.07, y=0.015, 
+            s=f"@Merca_precio", 
+            transform=fig.transFigure, 
+            ha='left', 
+            fontsize=14,
+            alpha=.8)
+
+    fig.tight_layout()
     
     plt.savefig("/tmp/chart.png", facecolor='white', bbox_inches='tight', pad_inches=0.2)
 
