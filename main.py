@@ -67,7 +67,6 @@ def plotting2(data):
     description = data['description'][0]
     prices = data['price'].asfreq('D')
 
-    # prices = prices[-14:]
     plt.rcParams['lines.linewidth'] = 2.5
     plt.rcParams['font.size'] = 12
     plt.rcParams['axes.titlesize'] = 18
@@ -88,15 +87,11 @@ def plotting2(data):
     plt.rcParams['axes.grid'] = True
     plt.rcParams['axes.grid.axis'] = 'y'
 
-    px = 1/plt.rcParams['figure.dpi'] 
-    # fig, ax = plt.subplots(figsize=(1200*px, 600*px))
     fig, ax = plt.subplots(figsize=(12, 6))
 
     ax.plot(prices, color= '#18a1cd')
 
     ax.set_title(f"{name} {description}", loc='left')
-
-    ax.grid(axis='y')
 
     locator = mdates.AutoDateLocator()
     ax.xaxis.set_major_formatter(format_date)
