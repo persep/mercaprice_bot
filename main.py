@@ -47,18 +47,99 @@ def mydate(date, fmt):
         return date.year
     if fmt == 'd':
         return date.day
-    if fmt == 'd-MMM':
-        return f'{date.day}-{months[date.month]}'
     if fmt == 'MMM\nyyyy':
         return f'{months[date.month]}\n{date.year}'
 
 def format_date(x, _):
-        date = mdates.num2date(x)
-        if date.day == 1 and date.month == 1:
-            return mydate(date,'MMM\nyyyy')
-        if date.day == 1:
-            return mydate(date,'MMM')
-        return mydate(date,'d')
+    date = mdates.num2date(x)
+    if date.day == 1 and date.month == 1:
+        return mydate(date,'MMM\nyyyy')
+    if date.day == 1:
+        return mydate(date,'MMM')
+    return mydate(date,'d')
+
+class MyConciseDateFormatter(ticker.Formatter):
+    def __init__(self, locator, show_offset=True):
+
+        self._locator = locator
+
+        # there are 6 levels with each level getting a specific format
+        # 0: mostly years,  1: months,  2: days,
+        # 3: hours, 4: minutes, 5: seconds
+
+        self.formats = ['yyyy',  # ticks are mostly years
+                        'MMM',          # ticks are mostly months
+                        'd',          # ticks are mostly days
+                        ]
+        # fmt for zeros ticks at this level.  These are
+        # ticks that should be labeled w/ info the level above.
+        # like 1 Jan can just be labelled "Jan".  02:02:00 can
+        # just be labeled 02:02.
+        
+        self.zero_formats = [''] + self.formats[:-1]
+        self.offset_formats = ['',
+                               'yyyy',
+                               'MMM-yyyy'
+                               ]
+
+        self.offset_string = ''
+        self.show_offset = show_offset
+
+    def format_ticks(self, values):
+        tickdatetime = [mdates.num2date(value) for value in values]
+        tickdate = np.array([tdt.timetuple()[:6] for tdt in tickdatetime])
+
+        # basic algorithm:
+        # 1) only display a part of the date if it changes over the ticks.
+        # 2) don't display the smaller part of the date if:
+        #    it is always the same or if it is the start of the
+        #    year, month, day etc.
+        # fmt for most ticks at this level
+        fmts = self.formats
+        # format beginnings of days, months, years, etc.
+        zerofmts = self.zero_formats
+        # offset fmt are for the offset in the upper left of the
+        # or lower right of the axis.
+        offsetfmts = self.offset_formats
+        show_offset = self.show_offset
+
+        # determine the level we will label at:
+        # mostly 0: years,  1: months,  2: days,
+        # 3: hours, 4: minutes, 5: seconds, 6: microseconds
+        for level in range(5, -1, -1):
+            unique = np.unique(tickdate[:, level])
+            if len(unique) > 1:
+                # if 1 is included in unique, the year is shown in ticks
+                if level < 2 and np.any(unique == 1):
+                    show_offset = False
+                break
+
+        # level is the basic level we will label at.
+        # now loop through and decide the actual ticklabels
+        zerovals = [0, 1, 1, 0, 0, 0, 0]
+        labels = [''] * len(tickdate)
+        for nn in range(len(tickdate)):   
+            if tickdate[nn][level] == zerovals[level]:
+                fmt = zerofmts[level]
+            else:
+                fmt = fmts[level]
+
+            labels[nn] = mydate(tickdatetime[nn],fmt)
+            
+        if show_offset:
+            if(np.any(unique == 1)):
+                level = level-1
+            self.offset_string = mydate(tickdatetime[-1],offsetfmts[level])
+            
+        else:
+            self.offset_string = ''
+
+        return labels
+
+    def get_offset(self):
+        return self.offset_string
+
+
 
 def plotting2(data):
     data = data.fillna('')
@@ -94,9 +175,8 @@ def plotting2(data):
     ax.set_title(f"{name} {description}", loc='left')
 
     locator = mdates.AutoDateLocator()
-    ax.xaxis.set_major_formatter(format_date)
+    formatter = MyConciseDateFormatter(locator)
     ax.xaxis.set_major_locator(locator)
-
     ax.xaxis.set_minor_locator(mdates.MonthLocator())
 
     last_day = data.index[-1].strftime("%d-%m-%Y")
