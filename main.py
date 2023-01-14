@@ -5,7 +5,6 @@ import matplotlib.dates as mdates
 import requests
 from io import StringIO
 import os
-from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 import matplotlib.dates as mdates
 from fastapi import FastAPI
 from deta import App
@@ -58,7 +57,7 @@ def format_date(x, _):
         return mydate(date,'MMM')
     return mydate(date,'d')
 
-class MyConciseDateFormatter(ticker.Formatter):
+class MyConciseDateFormatter(mticker.Formatter):
     def __init__(self, locator, show_offset=True):
 
         self._locator = locator
