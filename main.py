@@ -9,6 +9,7 @@ import matplotlib.dates as mdates
 from fastapi import FastAPI
 from deta import App
 import matplotlib.ticker as mticker
+import numpy as np
 
 months=['', 'ene', 'feb', 'mar', 'abr', 'may', 'jun',
         'jul', 'ago', 'sept', 'oct', 'nov', 'dic']
@@ -175,7 +176,10 @@ def plotting2(data):
 
     locator = mdates.AutoDateLocator()
     formatter = MyConciseDateFormatter(locator)
+    
     ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter)
+    
     ax.xaxis.set_minor_locator(mdates.MonthLocator())
 
     last_day = data.index[-1].strftime("%d-%m-%Y")
