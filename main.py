@@ -185,7 +185,7 @@ def plotting2(data):
     last_day = data.index[-1].strftime("%d-%m-%Y")
 
     ax.text(x=0.07, y=0.88, 
-            s=f"Precio a {str(last_day)}", 
+            s=f"Precio a {str(last_day)} de {prices.iloc[-1]}€",
             transform=fig.transFigure, 
             ha='left', 
             fontsize=14)
