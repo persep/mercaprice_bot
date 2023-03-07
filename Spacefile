@@ -1,0 +1,21 @@
+# Spacefile Docs: https://go.deta.dev/docs/spacefile/v0
+v: 0
+micros:
+  - name: mercaprice_bot
+    src: .
+    engine: python3.9
+    primary: true
+    presets:
+      env:
+        - name: tb_by_url
+        - name: access_token_secret
+        - name: api_key_secret
+        - name: tb_by_basename
+        - name: access_token
+        - name: api_key
+        - name: bearer_token
+    actions:
+      - id: "cron"
+        name: "cron"
+        trigger: "schedule"
+        default_interval: "1 minute"

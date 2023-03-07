@@ -6,15 +6,14 @@ import requests
 from io import StringIO
 import os
 import matplotlib.dates as mdates
-from fastapi import FastAPI
-from deta import App
+from fastapi import Request, FastAPI
 import matplotlib.ticker as mticker
 import numpy as np
 
 months=['', 'ene', 'feb', 'mar', 'abr', 'may', 'jun',
         'jul', 'ago', 'sept', 'oct', 'nov', 'dic']
 
-app = App(FastAPI())
+app = FastAPI()
 
 def start_client():
     api_key = os.getenv('api_key')
@@ -316,12 +315,17 @@ def proc_mentions(client, api):
 
 @app.get("/")
 async def root():
+    print("In root")
     client, api = start_client()
     proc_mentions(client, api)
     return "ok"
 
-@app.lib.cron()
-def cron_job(event):
-    client, api = start_client()
-    proc_mentions(client, api)
-    return "ok"
+@app.post('/__space/v0/actions')
+async def actions(request: Request):
+    print("In actions")
+    data = await request.json()
+    print(data)
+    event = data['event']
+    if event['id'] == 'cron':
+        client, api = start_client()
+        proc_mentions(client, api)
