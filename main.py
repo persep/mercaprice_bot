@@ -286,8 +286,9 @@ def proc_mentions(client, api):
     username = me.data.username
     print(f"Connected API 2 as: {client_id} {username}")
     
+    # not working with twitter free plan
     tweets = client.get_users_tweets(client_id,expansions='referenced_tweets.id')
-
+    
     if tweets.data:
         # the are tweets
         if tweets.data[0].referenced_tweets:
